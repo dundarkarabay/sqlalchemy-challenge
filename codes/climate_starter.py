@@ -149,8 +149,7 @@ df_short_groupedby.head()
 
 # Use Pandas Plotting with Matplotlib to plot the data
 df_short_groupedby.plot(kind="bar",figsize=(12,6))
-plt.gca().xaxis.set_major_locator(dates.MonthLocator())
-plt.tight_layout()
+plt.gca().axes.get_xaxis().set_ticks([]) # using to hide x axis scale infoplt.tight_layout()
 plt.savefig("../results/precipitation.png")
 plt.show()
 
@@ -202,6 +201,65 @@ df2 = pd.read_sql_query(stmt2, session.bind)
 df2.dropna()
 df2["tobs"].plot.hist(bins=12,legend="tobs")
 plt.savefig("../results/temp_histogram.png")
+plt.show()
+
+
+# In[25]:
+
+
+# This function called `calc_temps` will accept start date and end date in the format '%Y-%m-%d' 
+# and return the minimum, average, and maximum temperatures for that range of dates
+def calc_temps(start_date, end_date):
+    """TMIN, TAVG, and TMAX for a list of dates.
+    
+    Args:
+        start_date (string): A date string in the format %Y-%m-%d
+        end_date (string): A date string in the format %Y-%m-%d
+        
+    Returns:
+        TMIN, TAVE, and TMAX
+    """
+    
+    return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).        filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+
+# function usage example
+print(calc_temps('2012-02-28', '2012-03-05'))
+
+
+# In[26]:
+
+
+# Use your previous function `calc_temps` to calculate the tmin, tavg, and tmax 
+# for your trip using the previous year's data for those same dates.
+# Since the begin and end dates are not clearly defined, I choose the time period between May 15 and Aug 15 in 2017.
+temperatures = calc_temps('2017-05-15', '2017-08-15')
+
+
+# In[27]:
+
+
+error = [temperatures[0][2]-temperatures[0][0]]
+error
+
+
+# In[28]:
+
+
+# Plot the results from your previous query as a bar chart. 
+# Use "Trip Avg Temp" as your Title
+# Use the average temperature for the y value
+# Use the peak-to-peak (tmax-tmin) value as the y error bar (yerr)
+x_pos = np.arange(len(temperatures))
+ave_temp = [temperatures[0][1]]
+error = [temperatures[0][2]-temperatures[0][0]]
+
+plt.bar(x_pos, ave_temp, yerr=error,width=0.2, alpha=0.5,color="coral")
+plt.xlim(-0.5,0.5)
+plt.gca().axes.get_xaxis().set_ticks([]) # using to hide x axis scale info
+plt.ylabel('Temp (F)')
+plt.title('Trip Avg Temp')
+plt.tight_layout()
+plt.savefig('../results/trip_avg_temp.png')
 plt.show()
 
 
