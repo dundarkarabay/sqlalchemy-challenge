@@ -149,7 +149,8 @@ df_short_groupedby.head()
 
 # Use Pandas Plotting with Matplotlib to plot the data
 df_short_groupedby.plot(kind="bar",figsize=(12,6))
-plt.gca().axes.get_xaxis().set_ticks([]) # using to hide x axis scale infoplt.tight_layout()
+plt.gca().axes.get_xaxis().set_ticks([]) # using to hide x axis scale info
+plt.tight_layout()
 plt.savefig("../results/precipitation.png")
 plt.show()
 
